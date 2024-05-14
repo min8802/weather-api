@@ -1,6 +1,19 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
+import { WiCloudy, WiCloud, WiDaySunny, WiDayCloudy, WiRain, WiLightning, WiSnow, WiFog} from "react-icons/wi";
+
+const weatherIcons = {
+  "01": <WiDaySunny size={32} />,
+  "02": <WiDayCloudy size={32} />,
+  "03": <WiCloud size={32} />,
+  "04": <WiCloudy size={32} />,
+  "09": <WiRain size={32} />,
+  10: <WiRain size={32} />,
+  11: <WiLightning size={32} />,
+  13: <WiSnow size={32} />,
+  "50": <WiFog size={32} />
+};
 
 const WeatherIcon = () => {
     const [latitude, setLatitude] = useState();
@@ -10,7 +23,7 @@ const WeatherIcon = () => {
     const getWeather = async () => {
         try {
             const response = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${import.meta.env.VITE_API_KEY}&units=metric`);
-            console.log(response);
+
 
             setWeatherData(response.data);
         } catch (error) {
@@ -28,18 +41,19 @@ const WeatherIcon = () => {
 
     useEffect(() => {
         if (!latitude) return;
-    
         getWeather();
       }, [latitude]);
+
+    useEffect(() => {
+        if(!weatherData) return;
+        console.log(weatherData.weather[0].icon);  
+      }, [weatherData])
     
       if (!weatherData) {return <div className="w-28 h-12 flex items-center">loading...</div>};
 
       return (
         <div className="text-xs flex items-center">
-          <img
-            className="w-12 h-12"
-            src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
-          />
+          {weatherIcons[weatherData.weather[0].icon.substring(0, 2)]}
           <div className="w-16">
             <div className="font-semibold">{weatherData.name}</div>
             <div>{weatherData.main.temp.toFixed(1)}℃</div>
